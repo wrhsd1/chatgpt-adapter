@@ -1,6 +1,6 @@
 module github.com/bincooo/chatgpt-adapter/v2
 
-go 1.21.6
+go 1.21
 
 require (
 	github.com/bincooo/claude-api v1.0.4-0.20240323131054-e8068584fb71
