@@ -1,7 +1,7 @@
 FROM golang:1.20-alpine AS builder
 
 WORKDIR /app
-RUN apk add git && git clone https://github.com/wrhsd1/chatgpt-adapter.git -b v2 .
+COPY . .
 RUN go mod tidy && GOOS=linux GOARCH=amd64 go build -ldflags "-s -w" -o linux-server -trimpath
 
 FROM alpine:3.19.0
