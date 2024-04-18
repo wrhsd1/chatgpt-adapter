@@ -11,6 +11,10 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"encoding/json"
+	"io/ioutil"
+	"math/rand"
+	"time"		
 )
 
 func Bind(port int, version, proxies string) {
@@ -52,15 +56,36 @@ func proxiesHandler(proxies string) gin.HandlerFunc {
 	}
 }
 
-func tokenHandler(ctx *gin.Context) {
-	token := ctx.Request.Header.Get("X-Api-Key")
-	if token == "" {
-		token = strings.TrimPrefix(ctx.Request.Header.Get("Authorization"), "Bearer ")
-	}
+type CookieItem struct {
+    Cookie string `json:"cookie"`
+}
 
-	if token != "" {
-		ctx.Set("token", token)
-	}
+func tokenHandler(ctx *gin.Context) {
+    token := ""
+    // 尝试从文件中读取 cookie
+    file, err := os.Open("/mnt/coze.json")
+    if err == nil {
+        defer file.Close()
+        bytes, err := ioutil.ReadAll(file)
+        if err == nil {
+            var cookies []CookieItem
+            err = json.Unmarshal(bytes, &cookies)
+            if err == nil && len(cookies) > 0 {
+                // 随机选择一个 cookie
+                rand.Seed(time.Now().UnixNano())
+                token = cookies[rand.Intn(len(cookies))].Cookie
+            }
+        }
+    }
+
+    // 如果没有有效的 cookie，从 Authorization 头获取令牌
+    if token == "" {
+        token = strings.TrimPrefix(ctx.Request.Header.Get("Authorization"), "Bearer ")
+    }
+
+    if token != "" {
+        ctx.Set("token", token)
+    }
 }
 
 func crosHandler(context *gin.Context) {
