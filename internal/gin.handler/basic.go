@@ -21,9 +21,9 @@ func Bind(port int, version, proxies string) {
 	gin.SetMode(gin.ReleaseMode)
 	route := gin.Default()
 
-	route.Use(crosHandler)
-	route.Use(panicHandler)
 	route.Use(tokenHandler)
+	route.Use(crosHandler)
+	route.Use(panicHandler)	
 	route.Use(proxiesHandler(proxies))
 	route.Use(func(ctx *gin.Context) {
 		ctx.Set("port", port)
